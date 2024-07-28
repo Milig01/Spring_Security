@@ -4,12 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.spring_boot_test.model.User;
 import org.example.spring_boot_test.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequestMapping("/admin")
 @Controller
@@ -18,22 +15,48 @@ public class AdminController {
     private final UserService userService;
 
     @GetMapping
-    public String admin(@AuthenticationPrincipal UserDetails user, ModelMap model) {
-        user = userService.loadUserByUsername(user.getUsername());
-        model.addAttribute("user", user);
-        return "admin/admin";
+    public String adminPage(Model model, @AuthenticationPrincipal User user) {
+        model.addAttribute("users", userService.findAll());
+        model.addAttribute("user", userService.findByEmail(user.getEmail()));
+        return "admin_page";
     }
 
-    @GetMapping("/getAll")
-    public String getAll(ModelMap model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-        return "admin/getAll";
+    @GetMapping("/updatePage")
+    public String updatePage(Model model, @RequestParam String email) {
+        model.addAttribute("user", userService.findByEmail(email));
+        return "update_page";
     }
 
-    @PostMapping("/delete")
-    public String delete(@RequestParam("id") long id) {
-        userService.deleteById(id);
-        return "redirect:/admin/getAll";
+    @GetMapping("/deletePage")
+    public String deletePage(Model model, @RequestParam String email) {
+        model.addAttribute("user", userService.findByEmail(email));
+        return "delete_page";
+    }
+
+    @PostMapping("/addUser")
+    public String addUser(@ModelAttribute("user") User user) {
+        userService.save(user);
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/updateUser")
+    public String updateUser(@ModelAttribute("user") User user) {
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            user.setPassword(userService.findByEmail(user.getEmail()).getPassword());
+            userService.update(user);
+        } else {
+            userService.save(user);
+        }
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/deleteUser")
+    public String deleteUser(@ModelAttribute("user") User user, @AuthenticationPrincipal User admin) {
+        User userToDelete = userService.findByEmail(user.getEmail());
+        userService.delete(userToDelete);
+        if (admin.getEmail().equals(userToDelete.getEmail())) {
+            return "redirect:/login";
+        }
+        return "redirect:/admin";
     }
 }

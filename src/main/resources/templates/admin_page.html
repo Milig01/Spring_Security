@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+</head>
+<body>
+    <h3>Admin page</h3>
+    <form action="/logout">
+        <button type="submit">logout</button>
+    </form>
+    <div>
+        Admin
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Age</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${user.getId()}"></td>
+                <td th:text="${user.getFirstName()}"></td>
+                <td th:text="${user.getLastName()}"></td>
+                <td th:text="${user.getAge()}"></td>
+                <td th:text="${user.getEmail()}"></td>
+                <td th:text="${user.rolesToString()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    Users
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Age</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.getId()}"></td>
+                <td th:text="${user.getFirstName()}"></td>
+                <td th:text="${user.getLastName()}"></td>
+                <td th:text="${user.getAge()}"></td>
+                <td th:text="${user.getEmail()}"></td>
+                <td th:text="${user.rolesToString()}"></td>
+                <td>
+                    <form action="/admin/updatePage" method="get">
+                        <input type="hidden" name="email" th:value="${user.getEmail()}">
+                        <button>Edit</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/admin/deletePage" method="get">
+                        <input type="hidden" name="email" th:value="${user.getEmail()}">
+                        <button>Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div>
+        <h4>Add User</h4>
+        <form action="admin/addUser" method="post">
+            <label>
+                firstName
+                <input type="text" name="firstName">
+            </label>
+            <label>
+                lastName
+                <input type="text" name="lastName">
+            </label>
+            <label>
+                age
+                <input type="text" name="age">
+            </label>
+            <label>
+                email
+                <input type="email" name="email">
+            </label>
+            <label>
+                password
+                <input type="password" name="password">
+            </label>
+            <label>
+                roles
+                <select multiple name="roles" size="2">
+                    <option value="1">ADMIN</option>
+                    <option value="2">USER</option>
+                </select>
+            </label>
+            <button type="submit">Add new user</button>
+        </form>
+    </div>
+</body>
+</html>

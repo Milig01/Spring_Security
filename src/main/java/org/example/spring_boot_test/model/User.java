@@ -14,12 +14,14 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private String firstName;
+    private String lastName;
     @Column(unique = true, nullable = false)
-    private String username;
+    private String email;
     @Column(nullable = false)
     private String password;
     private int age;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Role> roles;
 
     @Override
@@ -34,6 +36,11 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return getEmail();
+    }
+
+    public String rolesToString() {
+        return getRoles().stream().map(item -> item.getRole().substring(5) + " ")
+                .reduce("", String::concat);
     }
 }
